@@ -1,4 +1,4 @@
-
+// Anuar Bot Basecode (Git test)
 //MSE 2202 
 //Western Engineering base code
 //2020 05 13 E J Porter
@@ -72,6 +72,7 @@ volatile uint32_t vui32test2;
 #include "MyWEBserver.h"
 #include "BreakPoint.h"
 #include "WDT.h";
+#include "locator.h"
 
 void loopWEBServerButtonresponce(void);
 
@@ -157,6 +158,8 @@ void setup() {
    SmartLEDs.begin();                          // Initialize Smart LEDs object (required)
    SmartLEDs.clear();                          // Set all pixel colours to off
    SmartLEDs.show();                           // Send the updated pixel colours to the hardware
+
+   ENC_Disable();
 }
 
 void loop()
