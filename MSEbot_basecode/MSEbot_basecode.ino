@@ -71,8 +71,8 @@ volatile boolean LOC_btLookingForBeaconFlag = false; //active when robot loses b
 volatile boolean LOC_btTrackingBeacon = false; //active whenever the robot is driving towards the beacon
 volatile boolean ENC_FirstHalt = true;
 
-const uint8_t ci8RightTurn = 34;
-const uint8_t ci8LeftTurn = 34;
+const uint8_t ci8RightTurn = 27;
+const uint8_t ci8LeftTurn = 26;
 
 volatile int LOC_ciLastTurnDirection = 2;
 
@@ -130,6 +130,7 @@ unsigned char ucFlagStateIndex = 0;
 
 unsigned long CR1_ulMotorTimerPrevious;
 unsigned long CR1_ulMotorTimerNow;
+unsigned char ucNextMotorStateIndex = 1;
 unsigned char ucMotorStateIndex = 0;
 
 unsigned long CR1_ulHeartbeatTimerPrevious;
@@ -283,7 +284,7 @@ void loop()
          {
           case 0:
           {
-            ucMotorStateIndex = 1;
+            ucMotorStateIndex = ucNextMotorStateIndex;
             ucMotorState = 0;
             move(0); // used to be 0
             break;
@@ -295,7 +296,8 @@ void loop()
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
             
-            ucMotorStateIndex = 2;      
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex = 2;      
             break;
           }
            case 2:
@@ -306,19 +308,20 @@ void loop()
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
             ucMotorState = 3;  //right
             
-            ucMotorStateIndex = 3;
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex = 3;
             break;
           }
           case 3:
           {
 
             ucMotorState = 1;  //reverse
-            ENC_SetDistance(350, 350);
+            ENC_SetDistance(150, 150);
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
 
-
-            ucMotorStateIndex = 4;
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex = 4;
             break;
           }
            case 4:
@@ -328,8 +331,8 @@ void loop()
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
             ucMotorState = 2;  //left
 
-            
-            ucMotorStateIndex = 5;
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex = 5;
             break;
           }
          case 5:
@@ -339,16 +342,20 @@ void loop()
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
             
-            ucMotorStateIndex =  6;
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex =  6;
             break;
           }
           case 6:
           {
 
-            trackBeacon();
-            ucMotorState = 1;  
+            ENC_SetDistance(-(ci8LeftTurn),ci8LeftTurn);
+            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
+            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+            ucMotorState = 2;  //left  
             
-            ucMotorStateIndex = 6;
+            ucMotorStateIndex = 0;
+            ucNextMotorStateIndex = 11;
             break;
           }
            case 7:
@@ -391,13 +398,20 @@ void loop()
           }
            case 11:
           {
-             ENC_SetDistance(-(ci8LeftTurn), ci8LeftTurn);
+
+            ucMotorState = 1;  //Forward
+            ENC_SetDistance(150, 150);
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+
             ucMotorStateIndex = 0;
-            ucMotorState = 2;  //left
+            ucNextMotorStateIndex = 12;
             
             break;
+          }
+          case 12:
+          {
+            trackBeacon();
           }
          }
         }
