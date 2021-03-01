@@ -68,9 +68,31 @@ void ResetSpeeds()
   
 }
 
+uint8_t LeftAdjust (uint8_t leftSet){
+  if((ENC_vi32LeftEncoderARawTime > ENC_vi32RightEncoderARawTime)){
+    return (leftSet + CR1_ui8WheelSpeedAdjustmentFactor);
+  } else if ((ENC_vi32LeftEncoderARawTime < ENC_vi32RightEncoderARawTime)){
+    return (leftSet - CR1_ui8WheelSpeedAdjustmentFactor);
+  } else {
+    return leftSet;
+  }
+}
+
+uint8_t RightAdjust (uint8_t rightSet){
+  if((ENC_vi32LeftEncoderARawTime > ENC_vi32RightEncoderARawTime)){
+    return (rightSet - CR1_ui8WheelSpeedAdjustmentFactor);
+  } else if ((ENC_vi32LeftEncoderARawTime < ENC_vi32RightEncoderARawTime)){
+    return (rightSet + CR1_ui8WheelSpeedAdjustmentFactor);
+  } else {
+    return rightSet;
+  }
+}
+
 void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
 {
     int  iPrintOnce;
+    uint8_t ui8AdjustedRightSpeed = RightAdjust(ui8LeftSpeed);
+    uint8_t ui8AdjustedLeftSpeed = LeftAdjust(ui8RightSpeed);
       
    
      switch(ui8Direction)
@@ -80,18 +102,19 @@ void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
         //forward
         case 1:
         {
+          
             
           if(ui8LeftWorkingSpeed >= ui8LeftSpeed)
           {
-            ui8LeftWorkingSpeed = ui8LeftSpeed;
+            ui8LeftWorkingSpeed = ui8AdjustedLeftSpeed;
           }
           else
           {
           ui8LeftWorkingSpeed = ui8LeftWorkingSpeed + ACCELERATIONRATE;
           }
-          if(ui8RightWorkingSpeed >= ui8RightSpeed)
+          if(ui8RightWorkingSpeed >= ui8AdjustedRightSpeed)
           {
-            ui8RightWorkingSpeed = ui8RightSpeed;
+            ui8RightWorkingSpeed = ui8AdjustedRightSpeed;
           }
           else
           {
@@ -315,4 +338,7 @@ void move(uint8_t ui8Speed)
         }
       }
 }
+
+
+
 #endif

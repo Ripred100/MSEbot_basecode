@@ -67,28 +67,28 @@ usage
 #define WATCH_VARIABLE_10_TYPE uint32_t
 #define WATCH_VARIABLE_10 ENC_ui32RightEncoderAveTime
 
-//#define WATCH_VARIABLE_11_NAME ""
-//#define WATCH_VARIABLE_11_TYPE int32_t
-//#define WATCH_VARIABLE_11 
-//
-//#define WATCH_VARIABLE_12_NAME ""
-//#define WATCH_VARIABLE_12_TYPE int32_t
-//#define WATCH_VARIABLE_12 
+#define WATCH_VARIABLE_11_NAME "CR1_inPot2Value"
+#define WATCH_VARIABLE_11_TYPE int
+#define WATCH_VARIABLE_11 CR1_inPot2Value
+
+#define WATCH_VARIABLE_12_NAME "ucMotorStateIndex"
+#define WATCH_VARIABLE_12_TYPE unsigned char
+#define WATCH_VARIABLE_12 ucMotorStateIndex
 
 ////-----------------------------------------------------------
 ////Row 4
-//#define WATCH_VARIABLE_13_NAME "ENC_vi32LeftOdometerCompare"
-//#define WATCH_VARIABLE_13_TYPE volatile int32_t
-//#define WATCH_VARIABLE_13 ENC_vi32LeftOdometerCompare
+#define WATCH_VARIABLE_13_NAME "ucMotorState"
+#define WATCH_VARIABLE_13_TYPE unsigned char 
+#define WATCH_VARIABLE_13 ucMotorState
 ////
 //
-//#define WATCH_VARIABLE_14_NAME "ENC_vi32RightOdometerCompare"
-//#define WATCH_VARIABLE_14_TYPE volatile int32_t
-//#define WATCH_VARIABLE_14 ENC_vi32RightOdometerCompare
+#define WATCH_VARIABLE_14_NAME "LOC_btTrackingBeacon"
+#define WATCH_VARIABLE_14_TYPE volatile boolean
+#define WATCH_VARIABLE_14 LOC_btTrackingBeacon
 //
-//#define WATCH_VARIABLE_15_NAME "ENC_vi32LeftEncoderARawTime"
-//#define WATCH_VARIABLE_15_TYPE volatile int32_t
-//#define WATCH_VARIABLE_15 ENC_vi32LeftEncoderARawTime
+#define WATCH_VARIABLE_15_NAME "LOC_btLookingForBeaconFlag"
+#define WATCH_VARIABLE_15_TYPE volatile boolean
+#define WATCH_VARIABLE_15 LOC_btLookingForBeaconFlag
 ////
 //
 //#define WATCH_VARIABLE_16_NAME "ENC_vi32LeftEncoderBRawTime"

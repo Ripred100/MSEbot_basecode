@@ -31,10 +31,7 @@
  
  uint16_t ENC_uiAlpha = 8196;
 
- volatile int32_t ENC_vi32LeftEncoderARawTime;
- volatile int32_t ENC_vi32LeftEncoderBRawTime;
- volatile int32_t ENC_vi32RightEncoderARawTime;
- volatile int32_t ENC_vi32RightEncoderBRawTime;
+
 
 
  
@@ -60,7 +57,6 @@ void ENC_Calibrate()
 {
   
   
-  //asm volatile("esync; rsr %0,ccount":"=a" (ENC_vsi32ThisTime)); // @ 240mHz clock each tick is ~4nS 
 
 
 
@@ -97,6 +93,11 @@ void IRAM_ATTR ENC_isrLeftA()
 {
    volatile static int32_t ENC_vsi32LastTime;
    volatile static int32_t ENC_vsi32ThisTime;
+
+   if(ENC_FirstHalt)
+   {
+    ENC_Calibrate();
+   }
   
  
    // if the last interrupts data wasn't collected, count the miss
@@ -105,30 +106,39 @@ void IRAM_ATTR ENC_isrLeftA()
     ENC_vui16LeftEncoderAMissed += 1;
     
   }
- 
+
+ /*
   //how much time elapsed since last interrupt
   
   asm volatile("esync; rsr %0,ccount":"=a" (ENC_vsi32ThisTime )); // @ 240mHz clock each tick is ~4nS 
   ENC_vi32LeftEncoderARawTime = ENC_vsi32ThisTime - ENC_vsi32LastTime;
   ENC_vsi32LastTime = ENC_vsi32ThisTime;
   ENC_btLeftEncoderADataFlag = true;
+  */
+
+    //how much time elapsed since last interrupt
+  ENC_vsi32LastTime = ENC_vsi32ThisTime;
+  asm volatile("esync; rsr %0,ccount":"=a" (ENC_vsi32ThisTime)); // @ 240mHz clock each tick is ~4nS 
+  ENC_vi32LeftEncoderARawTime = ENC_vsi32ThisTime - ENC_vsi32LastTime;
+  ENC_btLeftEncoderADataFlag = true;
 
   //if both pins are high or low then count down otherwise wheel is going backwards count up
   //odometer reading
   if((digitalRead(ciEncoderLeftA) && digitalRead(ciEncoderLeftB)) || ((digitalRead(ciEncoderLeftA) == 0 && digitalRead(ciEncoderLeftB) == 0)))
   {
-    ENC_vi32LeftOdometer -= 1;
+    ENC_vi32LeftOdometer += 1;
   }
   else
   {
-    ENC_vi32LeftOdometer += 1;
+    ENC_vi32LeftOdometer -= 1;
   }
 
   
   if(ENC_btLeftMotorRunningFlag)
   {
-    if(ENC_vi32LeftOdometer == ENC_vi32LeftOdometerCompare)
+    if(ENC_vi32LeftOdometer == ENC_vi32LeftOdometerCompare || (LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55))
     {
+      
       ENC_btLeftMotorRunningFlag = false;
       ENC_btRightMotorRunningFlag = false;
       digitalWrite(ciMotorLeftA,HIGH);
@@ -139,6 +149,11 @@ void IRAM_ATTR ENC_isrLeftA()
       ledcWrite(1,255);  //stop with braking Left motor 
       ledcWrite(3,255);
       ledcWrite(4,255);  //stop with braking Right motor 
+      
+      if(LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55)
+      {
+        beaconFound();
+      }
     }
     
   }
@@ -149,6 +164,11 @@ void IRAM_ATTR ENC_isrLeftB()
 {
   volatile static int32_t ENC_vsi32LastTime;
   volatile static int32_t ENC_vsi32ThisTime;
+
+  if(ENC_FirstHalt)
+   {
+    ENC_Calibrate();
+   }
   
    // if the last interrupts data wasn't collected, count the miss
   if(ENC_btLeftEncoderBDataFlag)
@@ -165,16 +185,17 @@ void IRAM_ATTR ENC_isrLeftB()
   //odometer reading
   if((digitalRead(ciEncoderLeftA) && digitalRead(ciEncoderLeftB)) || ((digitalRead(ciEncoderLeftA) == 0 && digitalRead(ciEncoderLeftB) == 0)))
   {
-    ENC_vi32LeftOdometer += 1;
+    ENC_vi32LeftOdometer -= 1;
   }
   else
   {
-    ENC_vi32LeftOdometer -= 1;
+    ENC_vi32LeftOdometer += 1;
   }
   if(ENC_btLeftMotorRunningFlag)
   {
-    if(ENC_vi32LeftOdometer == ENC_vi32LeftOdometerCompare)
+    if(ENC_vi32LeftOdometer == ENC_vi32LeftOdometerCompare || (LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55))
     {
+      
         ENC_btLeftMotorRunningFlag = false;
       ENC_btRightMotorRunningFlag = false;
       digitalWrite(ciMotorLeftA,HIGH);
@@ -185,6 +206,10 @@ void IRAM_ATTR ENC_isrLeftB()
       ledcWrite(1,255);  //stop with braking Left motor 
       ledcWrite(3,255);
       ledcWrite(4,255);  //stop with braking Right motor 
+      if(LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55)
+      {
+        beaconFound();
+      }
     }
     
   }
@@ -194,6 +219,11 @@ void IRAM_ATTR ENC_isrRightA()
 {
   volatile static int32_t ENC_vsi32LastTime;
   volatile static int32_t ENC_vsi32ThisTime;
+
+  if(ENC_FirstHalt)
+   {
+    ENC_Calibrate();
+   }
 
    // if the last interrupts data wasn't collected, count the miss
   if(ENC_btRightEncoderADataFlag)
@@ -218,9 +248,10 @@ void IRAM_ATTR ENC_isrRightA()
   }
   if(ENC_btRightMotorRunningFlag)
   {
-    if(ENC_vi32RightOdometer == ENC_vi32RightOdometerCompare)
+    if(ENC_vi32RightOdometer == ENC_vi32RightOdometerCompare || (LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55))
     {
-        ENC_btLeftMotorRunningFlag = false;
+      
+      ENC_btLeftMotorRunningFlag = false;
       ENC_btRightMotorRunningFlag = false;
       digitalWrite(ciMotorLeftA,HIGH);
       digitalWrite(ciMotorLeftB,HIGH);
@@ -230,6 +261,11 @@ void IRAM_ATTR ENC_isrRightA()
       ledcWrite(1,255);  //stop with braking Left motor 
       ledcWrite(3,255);
       ledcWrite(4,255);  //stop with braking Right motor 
+      
+      if(LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55)
+      {
+        beaconFound();
+      }
     }
     
   }
@@ -239,6 +275,11 @@ void IRAM_ATTR ENC_isrRightB()
 {
   volatile static int32_t ENC_vsi32LastTime;
   volatile static int32_t ENC_vsi32ThisTime;
+
+  if(ENC_FirstHalt)
+   {
+    ENC_Calibrate();
+   }
 
   
   // if the last interrupts data wasn't collected, count the miss
@@ -264,9 +305,11 @@ void IRAM_ATTR ENC_isrRightB()
   }
   if(ENC_btRightMotorRunningFlag)
   {
-    if(ENC_vi32RightOdometer == ENC_vi32RightOdometerCompare)
+    
+    if(ENC_vi32RightOdometer == ENC_vi32RightOdometerCompare || (LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55))
     {
-       ENC_btLeftMotorRunningFlag = false;
+      
+      ENC_btLeftMotorRunningFlag = false;
       ENC_btRightMotorRunningFlag = false;
       digitalWrite(ciMotorLeftA,HIGH);
       digitalWrite(ciMotorLeftB,HIGH);
@@ -276,6 +319,11 @@ void IRAM_ATTR ENC_isrRightB()
       ledcWrite(1,255);  //stop with braking Left motor 
       ledcWrite(3,255);
       ledcWrite(4,255);  //stop with braking Right motor  
+      
+      if(LOC_btLookingForBeaconFlag && CR1_ui8IRDatum == 0x55)
+      {
+        beaconFound();
+      }
     }
     
   }
@@ -298,6 +346,8 @@ void ENC_Init()
 
   ENC_btLeftMotorRunningFlag = false;
   ENC_btRightMotorRunningFlag = false;
+
+  
 
 
   //check to see if calibration is in eeprom and retreive
