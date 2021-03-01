@@ -71,8 +71,8 @@ volatile boolean LOC_btLookingForBeaconFlag = false; //active when robot loses b
 volatile boolean LOC_btTrackingBeacon = false; //active whenever the robot is driving towards the beacon
 volatile boolean ENC_FirstHalt = true;
 
-const uint8_t ci8RightTurn = 30;
-const uint8_t ci8LeftTurn = 30;
+const uint8_t ci8RightTurn = 34;
+const uint8_t ci8LeftTurn = 34;
 
 volatile int LOC_ciLastTurnDirection = 2;
 
@@ -233,7 +233,7 @@ void loop()
  }
  iLastButtonState = iButtonValue;             // store button state
 
- if(!digitalRead(ciLimitSwitch))
+ if(!digitalRead(ciLimitSwitch) || CR1_ui8IRDatum == 0x41)
  {
   LOC_btLookingForBeaconFlag = false;
   ENC_btLeftMotorRunningFlag = false;
@@ -294,55 +294,68 @@ void loop()
             ENC_SetDistance(200, 200);
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
-            ucMotorStateIndex = 2;
-                     
+            
+            ucMotorStateIndex = 2;      
             break;
           }
            case 2:
           {
+
+            ENC_SetDistance(ci8RightTurn,-(ci8RightTurn));
+            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
+            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+            ucMotorState = 3;  //right
             
             ucMotorStateIndex = 3;
-            ucMotorState = 0;
-            move(0); // used to be 0
             break;
           }
           case 3:
           {
-            trackBeacon();
+
+            ucMotorState = 1;  //reverse
+            ENC_SetDistance(350, 350);
+            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
+            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+
+
             ucMotorStateIndex = 4;
-            ucMotorState = 1;  //left
-           
             break;
           }
            case 4:
           {
-            ucMotorStateIndex = 3;
-            ucMotorState = 0;
-            move(0); // used to be 0
+            ENC_SetDistance(-(ci8LeftTurn),ci8LeftTurn);
+            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
+            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+            ucMotorState = 2;  //left
+
+            
+            ucMotorStateIndex = 5;
             break;
           }
          case 5:
           {
-            ENC_SetDistance(ci8RightTurn,-(ci8RightTurn));
+            ucMotorState = 1;  //reverse
+            ENC_SetDistance(200, 200);
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
-            ucMotorStateIndex =  6;
-            ucMotorState = 3;  //right
             
+            ucMotorStateIndex =  6;
             break;
           }
           case 6:
           {
-            ucMotorState = 0;
-            move(0); // used to be 0
-            ucMotorStateIndex = 7;
+
+            trackBeacon();
+            ucMotorState = 1;  
+            
+            ucMotorStateIndex = 6;
             break;
           }
            case 7:
           {// Flag wave case starts here
             ucMotorStateIndex = 8;
             ucMotorState = 4;  //reverse
-            ENC_SetDistance(-200, -200);
+            ENC_SetDistance(-300, -300);
             CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
             CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
             
@@ -350,21 +363,23 @@ void loop()
           }
           case 8:
           {
-            FlagWave();
+            ENC_SetDistance(2*ci8RightTurn,-(2*ci8RightTurn));
+            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
+            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
+            ucMotorState = 3;
+
+          
             
-            ucMotorStateIndex = 10;
-            ucMotorState = 0;
-            move(0); // used to be 0
+            ucMotorStateIndex = 9;
             break;
           }
           case 9:
           {
-            ENC_SetDistance(ci8RightTurn,-(ci8RightTurn));
-            CR1_ui8LeftWheelSpeed = CR1_ui8WheelSpeed;
-            CR1_ui8RightWheelSpeed = CR1_ui8WheelSpeed;
-            ucMotorStateIndex = 10;
-            ucMotorState = 3;  //right
+            FlagWave();
+            ucMotorState = 0;
+            move(0); // used to be 0
             
+            ucMotorStateIndex = 10;
             break;
           }
           case 10:
@@ -467,6 +482,7 @@ void loop()
        }
        else if (CR1_ui8IRDatum == 0x41) {           // if "hit" character is seen
          SmartLEDs.setPixelColor(0,25,0,25);        // make LED1 purple with 10% intensity
+         
        }
        else {                                       // otherwise
          SmartLEDs.setPixelColor(0,25,0,0);         // make LED1 red with 10% intensity

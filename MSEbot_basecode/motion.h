@@ -69,9 +69,9 @@ void ResetSpeeds()
 }
 
 uint8_t LeftAdjust (uint8_t leftSet){
-  if((ENC_vi32LeftEncoderARawTime > ENC_vi32RightEncoderARawTime)){
+  if((ENC_ui32LeftEncoderAveTime > ENC_ui32RightEncoderAveTime)){
     return (leftSet + CR1_ui8WheelSpeedAdjustmentFactor);
-  } else if ((ENC_vi32LeftEncoderARawTime < ENC_vi32RightEncoderARawTime)){
+  } else if ((ENC_ui32LeftEncoderAveTime < ENC_ui32RightEncoderAveTime)){
     return (leftSet - CR1_ui8WheelSpeedAdjustmentFactor);
   } else {
     return leftSet;
@@ -79,9 +79,9 @@ uint8_t LeftAdjust (uint8_t leftSet){
 }
 
 uint8_t RightAdjust (uint8_t rightSet){
-  if((ENC_vi32LeftEncoderARawTime > ENC_vi32RightEncoderARawTime)){
+  if((ENC_ui32LeftEncoderAveTime > ENC_ui32RightEncoderAveTime)){
     return (rightSet - CR1_ui8WheelSpeedAdjustmentFactor);
-  } else if ((ENC_vi32LeftEncoderARawTime < ENC_vi32RightEncoderARawTime)){
+  } else if ((ENC_ui32LeftEncoderAveTime < ENC_ui32RightEncoderAveTime)){
     return (rightSet + CR1_ui8WheelSpeedAdjustmentFactor);
   } else {
     return rightSet;
@@ -91,8 +91,8 @@ uint8_t RightAdjust (uint8_t rightSet){
 void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
 {
     int  iPrintOnce;
-    uint8_t ui8AdjustedRightSpeed = RightAdjust(ui8LeftSpeed);
-    uint8_t ui8AdjustedLeftSpeed = LeftAdjust(ui8RightSpeed);
+    uint8_t ui8AdjRightSpeed = RightAdjust(ui8LeftSpeed);
+    uint8_t ui8AdjLeftSpeed = LeftAdjust(ui8RightSpeed);
       
    
      switch(ui8Direction)
@@ -104,17 +104,17 @@ void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
         {
           
             
-          if(ui8LeftWorkingSpeed >= ui8LeftSpeed)
+          if(ui8LeftWorkingSpeed >= ui8AdjLeftSpeed)
           {
-            ui8LeftWorkingSpeed = ui8AdjustedLeftSpeed;
+            ui8LeftWorkingSpeed = ui8AdjLeftSpeed;
           }
           else
           {
           ui8LeftWorkingSpeed = ui8LeftWorkingSpeed + ACCELERATIONRATE;
           }
-          if(ui8RightWorkingSpeed >= ui8AdjustedRightSpeed)
+          if(ui8RightWorkingSpeed >= ui8AdjRightSpeed)
           {
-            ui8RightWorkingSpeed = ui8AdjustedRightSpeed;
+            ui8RightWorkingSpeed = ui8AdjRightSpeed;
           }
           else
           {
@@ -131,17 +131,17 @@ void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
         //Left
         case 2:
         {
-          if(ui8LeftWorkingSpeed >= ui8LeftSpeed)
+          if(ui8LeftWorkingSpeed >= ui8AdjLeftSpeed)
           {
-            ui8LeftWorkingSpeed = ui8LeftSpeed;
+            ui8LeftWorkingSpeed = ui8AdjLeftSpeed;
           }
           else
           {
           ui8LeftWorkingSpeed = ui8LeftWorkingSpeed + ACCELERATIONRATE;
           }
-          if(ui8RightWorkingSpeed >= ui8RightSpeed)
+          if(ui8RightWorkingSpeed >= ui8AdjRightSpeed)
           {
-            ui8RightWorkingSpeed = ui8RightSpeed;
+            ui8RightWorkingSpeed = ui8AdjRightSpeed;
           }
           else
           {
@@ -158,17 +158,17 @@ void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
         //Right
         case 3:
         {
-          if(ui8LeftWorkingSpeed >= ui8LeftSpeed)
+          if(ui8LeftWorkingSpeed >= ui8AdjLeftSpeed)
           {
-            ui8LeftWorkingSpeed = ui8LeftSpeed;
+            ui8LeftWorkingSpeed = ui8AdjLeftSpeed;
           }
           else
           {
           ui8LeftWorkingSpeed = ui8LeftWorkingSpeed + ACCELERATIONRATE;
           }
-          if(ui8RightWorkingSpeed >= ui8RightSpeed)
+          if(ui8RightWorkingSpeed >= ui8AdjRightSpeed)
           {
-            ui8RightWorkingSpeed = ui8RightSpeed;
+            ui8RightWorkingSpeed = ui8AdjRightSpeed;
           }
           else
           {
@@ -186,17 +186,17 @@ void MoveTo(uint8_t ui8Direction, uint8_t ui8LeftSpeed, uint8_t ui8RightSpeed)
         case 4:
         {
              
-          if(ui8LeftWorkingSpeed >= ui8LeftSpeed)
+          if(ui8LeftWorkingSpeed >= ui8AdjLeftSpeed)
           {
-            ui8LeftWorkingSpeed = ui8LeftSpeed;
+            ui8LeftWorkingSpeed = ui8AdjLeftSpeed;
           }
           else
           {
           ui8LeftWorkingSpeed = ui8LeftWorkingSpeed + ACCELERATIONRATE;
           }
-          if(ui8RightWorkingSpeed >= ui8RightSpeed)
+          if(ui8RightWorkingSpeed >= ui8AdjRightSpeed)
           {
-            ui8RightWorkingSpeed = ui8RightSpeed;
+            ui8RightWorkingSpeed = ui8AdjRightSpeed;
           }
           else
           {
